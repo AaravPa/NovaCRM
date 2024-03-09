@@ -1,6 +1,17 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: novacrm
+      POSTGRES_USER: novacrm_user
+      POSTGRES_PASSWORD: novacrm_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   backend:
     build:
       context: ../../backend
@@ -8,9 +19,11 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=sqlite:///./novacrm.db
+      - DATABASE_URL=postgresql://novacrm_user:novacrm_pass@postgres:5432/novacrm
     volumes:
       - ../../backend:/app
+    depends_on:
+      - postgres
 
   frontend:
     build:
@@ -22,3 +35,6 @@ services:
       - ../../frontend:/app
     depends_on:
       - backend
+
+volumes:
+  postgres_data:
