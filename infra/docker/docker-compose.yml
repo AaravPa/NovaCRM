@@ -12,6 +12,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
   backend:
     build:
       context: ../../backend
@@ -20,10 +27,13 @@ services:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql://novacrm_user:novacrm_pass@postgres:5432/novacrm
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     volumes:
       - ../../backend:/app
     depends_on:
       - postgres
+      - redis
 
   frontend:
     build:
@@ -38,3 +48,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
